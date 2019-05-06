@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"cloud.google.com/go/storage"
 	"context"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -42,6 +43,7 @@ func load(uri string) ([]string, error) {
 	for _, f := range []func(string) ([]string, error){
 		loadFile,
 		loadS3,
+		loadGS,
 		loadHTTP,
 	} {
 		env, err := f(uri)
@@ -125,6 +127,31 @@ func loadS3(s3URI string) ([]string, error) {
 	}()
 
 	return parse(obj.Body)
+}
+
+func loadGS(gsURI string) ([]string, error) {
+	u, err := url.Parse(gsURI)
+	if err != nil || u.Scheme != "gs" {
+		return nil, errNoMatch
+	}
+
+	client, err := storage.NewClient(context.Background())
+	if err != nil {
+		return nil, errors.Errorf("storage.NewClient: %w", err)
+	}
+
+	r, err := client.
+		Bucket(u.Host).
+		Object(strings.TrimPrefix(u.Path, "/")).
+		NewReader(context.Background())
+	if err != nil {
+		return nil, errors.Errorf("storage.NewReader for %v %v: %w", u.Host, u.Path, err)
+	}
+	defer func() {
+		_ = r.Close()
+	}()
+
+	return parse(r)
 }
 
 func loadHTTP(httpURI string) ([]string, error) {

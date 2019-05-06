@@ -7,6 +7,11 @@ S3:
 ENVLY_URI=s3://my-bucket/path/to/envfile.env envly my-command
 ```
 
+HTTP/HTTPS:
+```bash
+ENVLY_URI=https://example.com/path/to/envfile.env envly my-command
+```
+
 File:
 ```bash
 ENVLY_URI=file:///tmp/my-testing-env.env envly my-command
