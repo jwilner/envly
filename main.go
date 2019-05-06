@@ -9,6 +9,7 @@ import (
 	errors "golang.org/x/xerrors"
 	"io"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -41,6 +42,7 @@ func load(uri string) ([]string, error) {
 	for _, f := range []func(string) ([]string, error){
 		loadFile,
 		loadS3,
+		loadHTTP,
 	} {
 		env, err := f(uri)
 		if err == errNoMatch {
@@ -123,6 +125,20 @@ func loadS3(s3URI string) ([]string, error) {
 	}()
 
 	return parse(obj.Body)
+}
+
+func loadHTTP(httpURI string) ([]string, error) {
+	if u, err := url.Parse(httpURI); err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+		return nil, errNoMatch
+	}
+	r, err := http.Get(httpURI)
+	if err != nil {
+		return nil, errors.Errorf("error retrieving URI %v: %w", httpURI, err)
+	}
+	defer func() {
+		_ = r.Body.Close()
+	}()
+	return parse(r.Body)
 }
 
 func parse(r io.Reader) ([]string, error) {
