@@ -1,5 +1,7 @@
 # envly
 
+[![Build Status](https://travis-ci.org/jwilner/envly.svg?branch=master)](https://travis-ci.org/jwilner/envly)
+
 Drop in binary that loads environment variables from different locations. 
 
 Intended as a simple secrets management solution within Docker.
