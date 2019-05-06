@@ -1,10 +1,17 @@
 # envly
 
-Drop in binary that loads environment variables from different locations.
+Drop in binary that loads environment variables from different locations. 
+
+Intended as a simple secrets management solution within Docker.
 
 S3:
 ```bash
 ENVLY_URI=s3://my-bucket/path/to/envfile.env envly my-command
+```
+
+GS:
+```bash
+ENVLY_URI=gs://my-bucket/path/to/envfile.env envly my-command
 ```
 
 HTTP/HTTPS:
