@@ -2,7 +2,11 @@ language: go
 go:
 - '1.12'
 script:
-- ".travis/script.sh"
+- go test ./...
+- |
+  if [[ "${TRAVIS_TAG}" ]]; then
+      .travis/build.sh
+  fi
 deploy:
   provider: releases
   api_key:
